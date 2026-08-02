@@ -1,1043 +1,338 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Toronto Roleplay — Official Handbook</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --ink:#0d0d10;
-    --ink-2:#121217;
-    --panel:#17171d;
-    --panel-2:#1f1f27;
-    --red:#e4202b;
-    --red-deep:#b5141e;
-    --red-glow:rgba(228,32,43,.18);
-    --bone:#f5f3ef;
-    --text:#cfcfd6;
-    --muted:#8a8a96;
-    --line:rgba(255,255,255,.08);
-    --line-strong:rgba(255,255,255,.14);
-    --good:#39b56a;
-    --warn:#e3a13a;
-    --sidebar-w:292px;
-    --maxw:880px;
-  }
-  *{box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{
-    margin:0;background:var(--ink);color:var(--text);
-    font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-    font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;
-  }
-  a{color:#ff5a64;text-decoration:none}
-  a:hover{text-decoration:underline}
-  ::selection{background:var(--red);color:#fff}
+import { useState, useEffect, ReactNode } from 'react';
+import { motion } from 'framer-motion';
+import { ShieldAlert, Mic, UserX, AlertTriangle, CheckCircle2, XCircle, Crosshair, Gavel, Car } from 'lucide-react';
+import nysrpLogo from '@assets/1000064742-removebg-preview_1785666683796.png';
 
-  /* ---------- Sidebar ---------- */
-  .sidebar{
-    position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;
-    background:linear-gradient(180deg,#101015,#0a0a0d);
-    border-right:1px solid var(--line);overflow-y:auto;z-index:50;
-    padding:0 0 40px;
-  }
-  .brand{
-    display:flex;align-items:center;gap:12px;padding:22px 20px 18px;
-    border-bottom:1px solid var(--line);position:sticky;top:0;
-    background:linear-gradient(180deg,#101015,#0d0d12);z-index:2;
-  }
-  .brand .shield{
-    width:42px;height:48px;flex:0 0 auto;border-radius:6px 6px 10px 10px;
-    background:linear-gradient(180deg,var(--red),var(--red-deep));
-    display:grid;place-items:center;color:#fff;font-family:'Oswald';font-weight:700;
-    font-size:15px;letter-spacing:.5px;
-    clip-path:polygon(0 0,100% 0,100% 70%,50% 100%,0 70%);
-    box-shadow:0 0 0 2px #0d0d12, 0 0 18px var(--red-glow);
-  }
-  .brand b{font-family:'Oswald';font-weight:700;color:var(--bone);font-size:18px;letter-spacing:.6px;line-height:1.05;text-transform:uppercase}
-  .brand span{display:block;color:var(--muted);font-size:11px;letter-spacing:2px;text-transform:uppercase}
-  nav{padding:14px 12px 0}
-  .nav-label{font-family:'Oswald';text-transform:uppercase;letter-spacing:2px;font-size:11px;color:var(--muted);padding:16px 12px 8px}
-  .nav-label:first-child{padding-top:6px}
-  .nav-link{
-    display:flex;align-items:center;gap:10px;width:100%;text-align:left;
-    background:none;border:0;color:var(--text);font:inherit;font-size:14.5px;
-    padding:9px 12px;border-radius:8px;cursor:pointer;transition:.15s;margin:1px 0;
-  }
-  .nav-link:hover{background:var(--panel);color:var(--bone)}
-  .nav-link.active{background:linear-gradient(90deg,var(--red-glow),transparent);color:#fff;box-shadow:inset 2px 0 0 var(--red)}
-  .nav-link .lk{margin-left:auto;font-size:12px;opacity:.7}
-  .nav-link.is-open .lk{color:var(--good);opacity:1}
+const FadeIn = ({ children, delay = 0, className = '' }: { children: ReactNode, delay?: number, className?: string }) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-10%" }}
+      transition={{ duration: 0.6, delay, ease: "easeOut" }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+};
 
-  /* ---------- Layout ---------- */
-  .wrap{margin-left:var(--sidebar-w);min-height:100vh}
-  .topbar{display:none}
-  main{max-width:var(--maxw);margin:0 auto;padding:46px 30px 90px}
-  .page{display:none;animation:fade .35s ease}
-  .page.active{display:block}
-  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-
-  /* ---------- Hero ---------- */
-  .hero{text-align:center;padding:18px 0 8px}
-  .hero img{width:188px;height:auto;filter:drop-shadow(0 10px 30px rgba(0,0,0,.6))}
-  .hero h1{font-family:'Oswald';text-transform:uppercase;font-weight:700;color:var(--bone);
-    font-size:clamp(34px,6vw,52px);letter-spacing:2px;margin:14px 0 2px;line-height:1}
-  .hero h1 em{color:var(--red);font-style:normal}
-  .hero .tag{color:var(--muted);letter-spacing:3px;text-transform:uppercase;font-size:12px;font-family:'Oswald'}
-  .skyline{height:34px;width:100%;margin:26px 0 8px;color:#000;opacity:.9}
-  .skyline svg{width:100%;height:100%;display:block}
-
-  /* ---------- Typography ---------- */
-  .eyebrow{font-family:'Oswald';text-transform:uppercase;letter-spacing:3px;color:var(--red);font-size:12px;font-weight:600;margin-bottom:6px}
-  h2.section{font-family:'Oswald';text-transform:uppercase;color:var(--bone);font-weight:700;
-    font-size:clamp(26px,4vw,36px);letter-spacing:1px;margin:0 0 6px;line-height:1.05}
-  .lead{color:var(--muted);font-size:16.5px;margin:0 0 26px;max-width:62ch}
-  h3{font-family:'Oswald';text-transform:uppercase;letter-spacing:.6px;color:var(--bone);font-size:19px;margin:30px 0 10px;font-weight:600}
-  h4{color:var(--bone);font-size:16px;margin:20px 0 6px;font-weight:600}
-  p{margin:0 0 14px}
-  .divider{height:1px;background:var(--line);margin:34px 0}
-
-  /* ---------- Lists ---------- */
-  ol.rules,ul.clean{margin:0 0 18px;padding:0;list-style:none;counter-reset:r}
-  ol.rules li{position:relative;padding:11px 14px 11px 46px;margin:7px 0;background:var(--panel);
-    border:1px solid var(--line);border-radius:10px;counter-increment:r}
-  ol.rules li::before{content:counter(r,decimal-leading-zero);position:absolute;left:12px;top:11px;
-    font-family:'JetBrains Mono';font-weight:700;color:var(--red);font-size:13px}
-  ol.rules li b{color:var(--bone)}
-  ul.clean li{position:relative;padding:7px 0 7px 22px}
-  ul.clean li::before{content:"";position:absolute;left:2px;top:15px;width:7px;height:7px;background:var(--red);border-radius:2px;transform:rotate(45deg)}
-  ul.clean li b{color:var(--bone)}
-
-  /* ---------- Cards / callouts ---------- */
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin:16px 0}
-  .note{border-left:3px solid var(--red);background:linear-gradient(90deg,var(--red-glow),transparent);
-    padding:14px 18px;border-radius:0 10px 10px 0;margin:18px 0;color:var(--bone)}
-  .note.amber{border-color:var(--warn);background:linear-gradient(90deg,rgba(227,161,58,.14),transparent)}
-  .note.good{border-color:var(--good);background:linear-gradient(90deg,rgba(57,181,106,.14),transparent)}
-  .note b{color:#fff}
-  .pill{display:inline-block;font-family:'JetBrains Mono';font-size:12px;background:var(--panel-2);
-    border:1px solid var(--line-strong);border-radius:6px;padding:2px 8px;color:var(--bone)}
-  code{font-family:'JetBrains Mono';background:var(--panel-2);border:1px solid var(--line);
-    padding:1px 7px;border-radius:6px;font-size:13.5px;color:#ffd9db}
-
-  /* ---------- Tables ---------- */
-  .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;margin:16px 0}
-  table{border-collapse:collapse;width:100%;min-width:560px;font-size:14px}
-  th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top}
-  thead th{font-family:'Oswald';text-transform:uppercase;letter-spacing:.5px;font-size:12.5px;
-    color:var(--bone);background:var(--ink-2);position:sticky;top:0}
-  tbody tr:hover{background:rgba(255,255,255,.02)}
-  td b{color:var(--bone)}
-  .tier-h{font-family:'Oswald';text-transform:uppercase;letter-spacing:1px;font-size:15px;
-    display:flex;align-items:center;gap:10px;margin:26px 0 10px}
-  .tier-h .dot{width:12px;height:12px;border-radius:3px}
-  .min .dot{background:var(--warn)} .maj .dot{background:#e8722e} .sev .dot{background:var(--red)}
-
-  /* ---------- Rank ladder ---------- */
-  .dept{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px 0;margin:14px 0}
-  .dept .dh{font-family:'Oswald';text-transform:uppercase;letter-spacing:1px;color:#fff;
-    padding:13px 18px;font-size:14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line)}
-  .dept .dh .b{margin-left:auto;font-size:11px;letter-spacing:1.5px;padding:3px 9px;border-radius:20px;font-family:'Oswald'}
-  .b.ls{background:rgba(120,150,255,.16);color:#9ab0ff} .b.shr{background:var(--red-glow);color:#ff7a82}
-  .b.hr{background:rgba(232,114,46,.16);color:#f0995e} .b.mr{background:rgba(170,90,200,.16);color:#cf9be0}
-  .b.lr{background:rgba(57,181,106,.16);color:#6fce93}
-  .rank{display:flex;align-items:center;gap:12px;padding:9px 18px;border-bottom:1px solid rgba(255,255,255,.04)}
-  .rank:last-child{border-bottom:0}
-  .rank .n{font-family:'JetBrains Mono';font-size:12px;color:var(--muted);width:22px;flex:0 0 auto}
-  .rank .name{color:var(--bone);font-weight:500}
-  .rank.you{background:linear-gradient(90deg,var(--red-glow),transparent)}
-  .rank.you .name{color:#fff}
-  .you-tag{margin-left:auto;font-family:'Oswald';font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;
-    background:var(--red);color:#fff;padding:2px 8px;border-radius:20px}
-
-  /* ---------- Role chips ---------- */
-  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 4px}
-  .chip{font-size:13px;background:var(--panel-2);border:1px solid var(--line-strong);border-radius:8px;padding:5px 11px;color:var(--bone)}
-  .chip.div{border-style:dashed;color:var(--muted)}
-  .roledef{margin:6px 0;padding:11px 14px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
-  .roledef b{color:#fff;font-family:'Oswald';letter-spacing:.4px}
-
-  /* ---------- Lock screens ---------- */
-  .lock{max-width:460px;margin:30px auto;text-align:center;background:var(--panel);
-    border:1px solid var(--line-strong);border-radius:16px;padding:40px 32px;
-    box-shadow:0 0 0 1px rgba(228,32,43,.08),0 24px 60px rgba(0,0,0,.45)}
-  .lock .ic{width:66px;height:74px;margin:0 auto 18px;background:linear-gradient(180deg,var(--red),var(--red-deep));
-    clip-path:polygon(0 0,100% 0,100% 70%,50% 100%,0 70%);display:grid;place-items:center;
-    box-shadow:0 0 26px var(--red-glow)}
-  .lock .ic svg{width:30px;height:30px;fill:#fff}
-  .lock h2{font-family:'Oswald';text-transform:uppercase;color:var(--bone);letter-spacing:1px;margin:0 0 4px;font-size:24px}
-  .lock p{color:var(--muted);font-size:14.5px;margin:0 0 20px}
-  .lock form{display:flex;gap:8px;justify-content:center}
-  .lock input{flex:1;max-width:240px;background:var(--ink-2);border:1px solid var(--line-strong);
-    color:#fff;font-family:'JetBrains Mono';font-size:15px;padding:12px 14px;border-radius:10px;letter-spacing:1px;text-align:center}
-  .lock input:focus{outline:2px solid var(--red);border-color:var(--red)}
-  .lock button{background:linear-gradient(180deg,var(--red),var(--red-deep));color:#fff;border:0;
-    font-family:'Oswald';text-transform:uppercase;letter-spacing:1px;font-size:14px;padding:0 20px;
-    border-radius:10px;cursor:pointer;font-weight:600}
-  .lock button:hover{filter:brightness(1.1)}
-  .lock .err{color:var(--red);font-size:13px;min-height:18px;margin:12px 0 0;font-weight:500}
-  .lock .hint{color:var(--muted);font-size:12.5px;margin-top:18px}
-  .locked-content[hidden]{display:none}
-
-  /* ---------- Accordion (details) ---------- */
-  details.acc{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin:12px 0;overflow:hidden}
-  details.acc>summary{cursor:pointer;list-style:none;padding:16px 20px;font-family:'Oswald';
-    text-transform:uppercase;letter-spacing:.6px;color:var(--bone);font-size:16px;display:flex;align-items:center;gap:12px}
-  details.acc>summary::-webkit-details-marker{display:none}
-  details.acc>summary .ch{margin-left:auto;transition:.2s;color:var(--red);font-size:18px}
-  details.acc[open]>summary .ch{transform:rotate(45deg)}
-  details.acc>summary .num{font-family:'JetBrains Mono';font-size:12px;color:var(--red);
-    border:1px solid var(--line-strong);border-radius:6px;padding:2px 7px}
-  .acc-body{padding:4px 20px 20px}
-
-  /* ---------- Link cards (tutorials) ---------- */
-  .links{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:14px 0}
-  .lcard{display:flex;align-items:center;gap:12px;background:var(--panel-2);border:1px solid var(--line);
-    border-radius:12px;padding:13px 15px;color:var(--bone);transition:.15s}
-  .lcard:hover{border-color:var(--red);text-decoration:none;transform:translateY(-2px)}
-  .lcard .yt{flex:0 0 auto;width:34px;height:24px;background:var(--red);border-radius:6px;display:grid;place-items:center}
-  .lcard .yt::after{content:"";border-left:9px solid #fff;border-top:6px solid transparent;border-bottom:6px solid transparent;margin-left:2px}
-  .lcard .doc{flex:0 0 auto;width:30px;height:30px;background:var(--ink);border:1px solid var(--line-strong);border-radius:7px;display:grid;place-items:center;color:var(--red);font-family:'Oswald';font-weight:700}
-  .lcard small{display:block;color:var(--muted);font-size:12px}
-  .lcard b{font-size:14px;font-family:'Inter'}
-
-  /* ---------- Footer ---------- */
-  footer{border-top:1px solid var(--line);margin-top:60px;padding:26px 0 0;color:var(--muted);font-size:13px;text-align:center}
-  footer b{color:var(--bone);font-family:'Oswald';letter-spacing:1px}
-
-  /* ---------- Steps ---------- */
-  ol.steps{counter-reset:s;list-style:none;padding:0;margin:14px 0}
-  ol.steps li{counter-increment:s;position:relative;padding:4px 0 16px 44px;border-left:1px solid var(--line);margin-left:14px}
-  ol.steps li::before{content:counter(s);position:absolute;left:-15px;top:0;width:30px;height:30px;
-    background:var(--ink);border:1px solid var(--red);color:var(--red);border-radius:50%;
-    display:grid;place-items:center;font-family:'JetBrains Mono';font-weight:700;font-size:13px}
-  ol.steps li:last-child{border-left-color:transparent}
-  ol.steps li b{color:var(--bone)}
-
-  /* ---------- Mobile ---------- */
-  .scrim{display:none}
-  @media (max-width:900px){
-    .sidebar{transform:translateX(-100%);transition:transform .25s;box-shadow:0 0 50px rgba(0,0,0,.6)}
-    .sidebar.open{transform:none}
-    .wrap{margin-left:0}
-    .topbar{display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:30;
-      background:rgba(13,13,16,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:12px 16px}
-    .menu-btn{background:var(--panel);border:1px solid var(--line-strong);color:var(--bone);
-      width:42px;height:42px;border-radius:10px;font-size:20px;cursor:pointer}
-    .topbar b{font-family:'Oswald';text-transform:uppercase;letter-spacing:1px;color:var(--bone)}
-    .topbar .shield{width:30px;height:34px;background:linear-gradient(180deg,var(--red),var(--red-deep));
-      clip-path:polygon(0 0,100% 0,100% 70%,50% 100%,0 70%);display:grid;place-items:center;
-      font-family:'Oswald';font-weight:700;color:#fff;font-size:11px}
-    main{padding:28px 18px 80px}
-    .scrim.show{display:block;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40}
-  }
-  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
-  :focus-visible{outline:2px solid var(--red);outline-offset:2px;border-radius:4px}
-</style>
-</head>
-<body>
-
-<!-- ============ MOBILE TOPBAR ============ -->
-<div class="topbar">
-  <button class="menu-btn" id="menuBtn" aria-label="Open menu">☰</button>
-  <div class="shield">TR</div>
-  <b>Toronto Roleplay</b>
-</div>
-<div class="scrim" id="scrim"></div>
-
-<!-- ============ SIDEBAR ============ -->
-<aside class="sidebar" id="sidebar">
-  <div class="brand">
-    <div class="shield">TR</div>
-    <div><b>Toronto<br>Roleplay</b><span>Handbook · Est. 2026</span></div>
+const SectionHeader = ({ number, title }: { number: string, title: string }) => (
+  <div className="flex flex-col items-start mb-16">
+    <motion.div
+      initial={{ scaleX: 0 }}
+      whileInView={{ scaleX: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+      className="h-1.5 w-20 bg-primary origin-left mb-6"
+    />
+    <h2 className="text-4xl md:text-5xl font-mono font-bold uppercase tracking-tight text-white">
+      <span className="text-primary mr-3">{number}.</span>{title}
+    </h2>
   </div>
-  <nav id="nav">
-    <div class="nav-label">Community</div>
-    <button class="nav-link active" data-target="home">Welcome</button>
-    <button class="nav-link" data-target="server">Server Rules</button>
-    <button class="nav-link" data-target="discord">Discord Rules</button>
-    <button class="nav-link" data-target="ingame">In-Game Rules</button>
-    <button class="nav-link" data-target="coc">Chain of Command</button>
-    <button class="nav-link" data-target="join">Join the Team</button>
-    <button class="nav-link" data-target="glossary">Glossary</button>
-    <div class="nav-label">Restricted · Passcode</div>
-    <button class="nav-link" data-target="staff" data-lock="staff">Staff Section <span class="lk">🔒</span></button>
-    <button class="nav-link" data-target="trainee" data-lock="trainee">Trainee Section <span class="lk">🔒</span></button>
-    <button class="nav-link" data-target="trainer" data-lock="trainer">Trainer Section <span class="lk">🔒</span></button>
-    <button class="nav-link" data-target="shr" data-lock="shr">SHR Section <span class="lk">🔒</span></button>
-  </nav>
-</aside>
+);
 
-<div class="wrap">
-<main>
+const navLinks = [
+  { id: 'requirements', label: 'Requirements' },
+  { id: 'core-rules', label: 'Core Rules' },
+  { id: 'civ-weapons', label: 'Civ & Weapons' },
+  { id: 'scenarios', label: 'Scenarios' },
+];
 
-<!-- ================= HOME ================= -->
-<section class="page active" id="page-home">
-  <div class="hero">
-    <img src="data:image/png;base64,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jsTixYtx8cUXAwCysrJO2JKQZRnXXXcdLrvsMnDO8eCDD2LHjh2GknG2iSRJUFUVF154IR7505+MMWO6fyA4rUUQpDat/B51H32EadFRILfe56hp7Ilps99vs7G11f4GR+LQ+9mtzBvqbTDFFFNOgxDSOQD867y7+n503liXd/IElYYNETR8KNHw4UTDh4W9xLChROdPoE/P60+LPnifiIgURSFdVFUlIqLi4mLq27cvASDOeVORk/kyXowxiomJob///e/k9XqJiCgrK4tefvnlFuPGGCPOOUVERFBGRoYx3r/61a/o7bffNv69ePFimjZtGiUlJRnHtXV+/fdHjRpFjY2NRESUkZFBdrv9uMeeyWPKGKPY2FjKyckhETInNRFN81QIqq6qpn/MmE5lY0cSjRxBYtiwlnN++FCicWPUTcPH0T/7XvBHMIYMpJmalimm/BiSgTRJkmQ823fK4xuGjSEaN1YRQ1sDpKFEw4aRGD6MXBPH0wujR9HR3MPaMlebQEkHqBUrVpDdbifO+Vm5uf2YL0mSCAClpaVRaWkp7d27l95++22Kjo4mWZbbBI+hQ4fSvn37aMuWLfTMM89QZGQkjRo1il5//XWaO3duq8cebwOXJIlGjx5NN910U9j7Z/O4vvfeey2UpVBIUlWVVCHo7fvupy3DhhCNH6MpW8OHanN92DCi4cM1MBo5Qi0eP55e6DFiZV56nj0NkAgwA6RnoZgP7aywkrQQUcELBbYvX5mz/JoU64RO/kZBquBGhTojwzlBRGBWG7LUAJb3G4C73/8AsszBGDfaOquqlrn04osv4sEHHzTcKKaEi9VqBaBleulM3sdzselJDG1lz+ndfU+Wj+5E65bOVFfdtdddh08/+aRNl7Huqlv2ySeofHoefpWYCGpwBRMhgqtBr4IgokBEFH1e3ug6FEie/Jf8b3elA9xMZDg7xTRrzwKZByAd6Wz20tmBWT0u21NSV3J932ibxaL4m5QKalIxGGcQAQUdnU5U5+dit8+PQZMmgYTODcaCm5rAhAkTceDAAezevfuYbNO/VAnt+KongZxodqK+2eo1SPrxJ5MdF3r82fiM9Phl3z59MX/+fDgcDi3y2TyrTghwScLB7CxseuRh/ComErLb00QNpCf0MI0eiDntYoNbSNn+2L88mr90QQZdI92LbBOMTEAy5ceU1VhN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" alt="Toronto Roleplay logo">
-    <h1>Toronto <em>Roleplay</em></h1>
-    <div class="tag">Official Community &amp; Staff Handbook</div>
-  </div>
-  <div class="skyline"><svg viewBox="0 0 1200 80" preserveAspectRatio="none" fill="currentColor"><path d="M0 80V52h40v-8h26V30h14v14h22V20h10v24h30v-9h18v9h26V40h36v40h44V46h22v-6h10v6h26V26h12v54h60V36h26v44h40V50h30v-6h8v6h30V14h6v6h6V14h6v66h44V44h34v36h44V52h26v-9h14v9h30V34h22v46h60V50h28v30h44V40h30v40h40V56h26v24h60V44h30v36h60V30h12v50z"/></svg></div>
+const scenarios = [
+  {
+    rule: 'Fear RP',
+    correct: {
+      label: 'Correct',
+      text: 'Two officers draw weapons and shout "Hands up!" — the suspect immediately raises their hands, complies with commands, and does not reach for their waistband.',
+    },
+    incorrect: {
+      label: 'Incorrect',
+      text: 'A suspect draws their pistol and attempts to shoot while two officers have rifles aimed directly at their head.',
+    },
+  },
+  {
+    rule: 'New Life Rule',
+    correct: {
+      label: 'Correct',
+      text: 'After being killed in a gang shootout near the docks, you spawn at an uptown hospital, wait 15 minutes, and begin a completely separate roleplay — unrelated to the previous scene.',
+    },
+    incorrect: {
+      label: 'Incorrect',
+      text: 'You get shot during a robbery, respawn at the hospital, and immediately drive back to the same block to shoot the people who killed you.',
+    },
+  },
+  {
+    rule: 'Metagaming',
+    correct: {
+      label: 'Correct',
+      text: 'You have no idea who the masked person in front of you is until they physically show you an ID card or introduce themselves out loud in-character.',
+    },
+    incorrect: {
+      label: 'Incorrect',
+      text: 'You read the floating name tag above a character\'s head and use that information to call them by name before they have identified themselves.',
+    },
+  },
+  {
+    rule: 'Fail RP — Vehicle Damage',
+    correct: {
+      label: 'Correct',
+      text: 'After hitting a barrier at speed, you pull over, roleplay a broken engine, and call a mechanic via in-game phone. You wait for help before moving.',
+    },
+    incorrect: {
+      label: 'Incorrect',
+      text: 'Your car flips twice during a police chase. You land on the wheels and continue the chase at full speed as if nothing happened.',
+    },
+  },
+  {
+    rule: 'Powergaming',
+    correct: {
+      label: 'Correct',
+      text: '/me slowly attempts to work a hand free from the cuffs, giving the officer a chance to notice and respond before any escape is possible.',
+    },
+    incorrect: {
+      label: 'Incorrect',
+      text: '/me instantly escapes from handcuffs using superhuman strength and sprints away at full speed with no chance for the officer to react.',
+    },
+  },
+  {
+    rule: 'Cop Baiting',
+    correct: {
+      label: 'Correct',
+      text: 'You speed away from a pursuit because your character is fleeing a crime scene — there is a real, active roleplay reason for the interaction.',
+    },
+    incorrect: {
+      label: 'Incorrect',
+      text: 'You rev your engine repeatedly outside the police station and do donuts in the parking lot specifically to get officers to chase you for no story reason.',
+    },
+  },
+];
 
-  <span class="eyebrow">Welcome to TRPC</span>
-  <h2 class="section">Read this. All of it.</h2>
-  <p class="lead">This is the single source of truth for Toronto Roleplay — for every member, every roleplayer, and every staff member. "I didn't know the rule" is never a valid excuse, because every rule lives right here.</p>
+export default function Home() {
+  const [activeSection, setActiveSection] = useState('');
 
-  <div class="card">
-    <h4 style="margin-top:0">How this handbook works</h4>
-    <p style="margin-bottom:8px">Use the menu on the left to jump between sections. The <b style="color:var(--bone)">Community</b> sections are open to everyone. The <b style="color:var(--bone)">Restricted</b> sections are locked — you'll need the passcode for your role to open them.</p>
-    <ul class="clean" style="margin-bottom:0">
-      <li><b>Staff Section</b> — for all accepted staff. Policy, commands, on-duty rules, Melonly logging, and the punishment ladder.</li>
-      <li><b>Trainee Section</b> — for anyone awaiting or in training.</li>
-      <li><b>Trainer Section</b> — for staff who hold the Staff Trainer role.</li>
-      <li><b>SHR Section</b> — for Senior High Rank and above.</li>
-    </ul>
-  </div>
-  <div class="note"><b>Need a passcode?</b> Passcodes are handed out by the Head of Staff or an SHR when you reach the matching role. Don't share them outside your rank.</div>
-</section>
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setActiveSection(entry.target.id);
+        }
+      });
+    }, { rootMargin: '-20% 0px -80% 0px' });
 
-<!-- ================= SERVER RULES ================= -->
-<section class="page" id="page-server">
-  <span class="eyebrow">Community</span>
-  <h2 class="section">Server Rules</h2>
-  <p class="lead">These apply <b>everywhere</b> — Discord, in-game, and any TRPC space. They sit above every other rule in this handbook.</p>
-  <ol class="rules">
-    <li><b>Respect everyone.</b> No harassment, bullying, threats, or targeting. Treat people the way you'd want to be treated.</li>
-    <li><b>Hate speech is an instant ban.</b> Racism, homophobia, transphobia, sexism, ableism, religious hate, or slurs of any kind — zero tolerance, IC or OOC.</li>
-    <li><b>No NSFW, gore, or shock content</b> anywhere, including profile pictures, names, statuses, and roleplay.</li>
-    <li><b>No ERP (Erotic Roleplay)</b> in any form. Instant ban.</li>
-    <li><b>No doxxing or real-life threats.</b> Sharing personal info or threatening someone's safety is an instant permanent ban.</li>
-    <li><b>Keep disputes private.</b> Take conflicts to a ticket — don't start drama or rally people against others.</li>
-    <li><b>No advertising or self-promo</b> without permission from High Rank or above. This includes DM advertising.</li>
-    <li><b>No scams, malicious links, IP grabbers, or phishing.</b> Instant permanent ban.</li>
-    <li><b>No exploiting, hacking, cheating, or game modification</b> of any kind.</li>
-    <li><b>No ban evasion.</b> Using alternate accounts to dodge a punishment extends the ban and bans the alt.</li>
-    <li><b>No impersonation</b> of staff, members, or the community.</li>
-    <li><b>No bypassing moderation.</b> Filter-dodging or evading a mute/ban is treated as the original offence, made worse.</li>
-    <li><b>Follow the Roblox Terms of Service and Discord Community Guidelines</b> at all times.</li>
-    <li><b>Staff have final say.</b> Follow staff instructions; raise disagreements calmly in a ticket, not in the moment.</li>
-    <li><b>Use common sense.</b> No list covers everything — if it clearly breaks the spirit of these rules, staff may act on it.</li>
-  </ol>
-</section>
+    navLinks.forEach(({ id }) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
 
-<!-- ================= DISCORD RULES ================= -->
-<section class="page" id="page-discord">
-  <span class="eyebrow">Community</span>
-  <h2 class="section">Discord Rules</h2>
-  <p class="lead">Conduct inside the Toronto Roleplay Discord server.</p>
-  <h3>General conduct</h3>
-  <ol class="rules">
-    <li><b>Use the correct channels</b> and keep content on-topic.</li>
-    <li><b>No spam</b> — message spam, emoji spam, copypastas, or chain messages.</li>
-    <li><b>No mass mentions or ghost pings.</b> Don't ping @everyone/@here, roles, or staff unless authorised. Ping-then-delete still counts.</li>
-    <li><b>Open a ticket for support</b> instead of pinging staff. Pinging High Rank or above for general issues isn't allowed.</li>
-    <li><b>No backseat moderating.</b> Report rule-breakers through a ticket.</li>
-    <li><b>No begging</b> for ranks, perms, roles, or giveaways.</li>
-    <li><b>Keep usernames, nicknames, and avatars appropriate</b> — nothing offensive, NSFW, or hoisted.</li>
-  </ol>
-  <h3>Content &amp; safety</h3>
-  <ol class="rules">
-    <li><b>No NSFW, gore, or shock content.</b></li>
-    <li><b>No heated politics or religious debate</b> in public chat.</li>
-    <li><b>No malicious or suspicious links</b> — no scam links, fake Nitro, or grabbers.</li>
-    <li><b>No leaking DMs or ticket contents</b> to start drama.</li>
-  </ol>
-  <h3>Voice channels</h3>
-  <ol class="rules">
-    <li><b>No mic spam, ear-rape, or disruptive soundboards.</b></li>
-    <li><b>No recording members in voice</b> without consent.</li>
-    <li><b>Don't channel-hop to disrupt others.</b> All server rules apply in voice too.</li>
-  </ol>
-  <div class="note">Bot commands belong in the bot-commands channel unless stated otherwise.</div>
-</section>
+    return () => observer.disconnect();
+  }, []);
 
-<!-- ================= IN-GAME RULES ================= -->
-<section class="page" id="page-ingame">
-  <span class="eyebrow">Community</span>
-  <h2 class="section">In-Game Rules</h2>
-  <p class="lead">You have <b>creative freedom</b>. Build your own characters, stories, jobs, and scenarios — civilian, criminal, or emergency services. These rules exist only to stop people ruining the experience for everyone else. They are not a script for how you must roleplay.</p>
+  return (
+    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/30 selection:text-white">
+      {/* Texture Overlay */}
+      <div className="fixed inset-0 z-50 pointer-events-none opacity-[0.02] bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CjxwYXRoIGQ9Ik0wIDBoNDB2NDBIMHoiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTAgMTBoNDBNMTAgMHY0ME0wIDIwaDQwTTIwIDB2NDBNMCAzMGg0ME0zMCAwdjQwIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMSkiIHN0cm9rZS13aWR0aD0iMSIvPgo8L3N2Zz4=')]" />
 
-  <h3>The core rules</h3>
-  <ol class="rules">
-    <li><b>No RDM (Random Deathmatch)</b> — don't kill or attack without a valid roleplay reason.</li>
-    <li><b>No VDM (Vehicle Deathmatch)</b> — don't use a vehicle as a weapon or ram players without a reason.</li>
-    <li><b>No FailRP (FRP)</b> — keep actions believable; no doing things a real person physically couldn't.</li>
-    <li><b>Value your life (Fear RP)</b> — react realistically when in danger. Held at gunpoint? You can't out-draw the gun already on you.</li>
-    <li><b>Follow the New Life Rule (NLR)</b> — when your character dies, you forget the events leading to it. Don't return to the scene or seek revenge until it clears.</li>
-    <li><b>No powergaming</b> — don't force outcomes onto others or roleplay impossible abilities.</li>
-    <li><b>No metagaming</b> — don't use out-of-character info (Discord, streams, OOC) for an in-character advantage.</li>
-    <li><b>No cop-baiting</b> — don't provoke law enforcement purely to trigger a chase with no real roleplay.</li>
-    <li><b>No combat/RP logging</b> — don't leave the server to escape a situation, an arrest, or its consequences.</li>
-    <li><b>Stay in character.</b> Use <code>(( ))</code> or <code>//</code> for OOC, and keep OOC chatter minimal.</li>
-  </ol>
+      {/* Hero */}
+      <section className="relative min-h-[90vh] flex flex-col items-center justify-center text-center px-4 overflow-hidden pt-20">
+        <div className="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-background/60 to-background" />
+        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-primary/5 blur-[150px] rounded-full pointer-events-none" />
 
-  <h3>Conduct &amp; driving</h3>
-  <ol class="rules">
-    <li><b>Drive realistically</b> when not in an active scene — no GTA driving, sidewalk driving, or mass-crashing.</li>
-    <li><b>No trolling</b> — no mass RDM/VDM, server disruption, or rage-baiting.</li>
-    <li><b>No mic spam or ear-rape in-game.</b></li>
-    <li><b>Use a realistic username</b> — no offensive or joke names.</li>
-    <li><b>Restricted weapons and vehicles</b> (military weapons, civilian supercars/hypercars) aren't for general use. Switch when asked.</li>
-  </ol>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          className="relative z-10 max-w-5xl mx-auto flex flex-col items-center"
+        >
+          <img
+            src={nysrpLogo}
+            alt="NYSRP Logo"
+            className="w-64 h-64 md:w-80 md:h-80 object-contain mb-8 filter drop-shadow-[0_0_40px_rgba(212,160,23,0.2)]"
+          />
 
-  <h3>Scenes</h3>
-  <ol class="rules">
-    <li><b>One major scene at a time.</b> Only one active major crime (robbery, hostage, pursuit) should run at once, with enough players online to respond — as a guide, at least two on-duty LEOs.</li>
-    <li><b>Wait ~10 minutes between major scenes</b> so the server isn't a constant warzone.</li>
-    <li><b>Don't interfere with scenes you aren't part of.</b></li>
-    <li><b>Comply with in-game staff.</b> On-duty staff handling a situation have full authority.</li>
-  </ol>
-</section>
+          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter text-white mb-6 uppercase leading-none" style={{ textShadow: '0 4px 30px rgba(0,0,0,0.8)' }}>
+            New York State <br className="md:hidden" /><span className="text-primary">Roleplay</span>
+          </h1>
 
-<!-- ================= CHAIN OF COMMAND ================= -->
-<section class="page" id="page-coc">
-  <span class="eyebrow">Community</span>
-  <h2 class="section">Chain of Command</h2>
-  <p class="lead">The role list mixes three different things. Here it's untangled: the actual <b>ranks</b> you get promoted through, the <b>department dividers</b>, and the <b>access/permission roles</b> that aren't ranks at all. Always go to the next rank above you when you need help.</p>
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: "160px" }}
+            transition={{ delay: 0.6, duration: 0.8 }}
+            className="h-1 bg-primary mb-10"
+          />
 
-  <div class="note amber"><b>Read this first.</b> Not every role in the server is a rank. A role is only a <b>rank</b> if it's a position you're promoted into. Everything in "Additional Roles" below is a label, an access pass, or a status toggle — never something you outrank or get promoted "past".</div>
+          <h2 className="text-xl md:text-3xl font-mono text-gray-300 mb-8 uppercase tracking-[0.25em]">
+            Whitelisted Guidelines
+          </h2>
 
-  <h3>The rank ladder</h3>
-  <p>Top = highest authority. Each department is shown highest-to-lowest internally.</p>
+          <p className="text-lg md:text-xl text-gray-400 max-w-2xl font-medium leading-relaxed">
+            A realistic, immersive GTA RP community — read carefully before applying.
+          </p>
+        </motion.div>
 
-  <div class="dept">
-    <div class="dh">Ownership <span class="b ls">Leadership</span></div>
-    <div class="rank"><span class="n">1</span><span class="name">Chairman</span></div>
-    <div class="rank"><span class="n">2</span><span class="name">Vice-Chairman</span></div>
-    <div class="rank"><span class="n">3</span><span class="name">Owner</span></div>
-    <div class="rank"><span class="n">4</span><span class="name">Assistant Owner</span></div>
-  </div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.5, duration: 1 }}
+          className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 text-gray-500 font-mono text-sm uppercase tracking-[0.2em]"
+        >
+          <span>Scroll to read</span>
+          <div className="w-[1px] h-16 bg-gradient-to-b from-primary to-transparent" />
+        </motion.div>
+      </section>
 
-  <div class="dept">
-    <div class="dh">Executives <span class="b shr">SHR</span></div>
-    <div class="rank"><span class="n">1</span><span class="name">Lead Executive</span></div>
-    <div class="rank"><span class="n">2</span><span class="name">Senior Executive</span></div>
-    <div class="rank"><span class="n">3</span><span class="name">Executive</span></div>
-    <div class="rank"><span class="n">4</span><span class="name">Junior Executive</span></div>
-    <div class="rank"><span class="n">5</span><span class="name">Trial Executive</span></div>
-  </div>
-
-  <div class="dept">
-    <div class="dh">Directive Department <span class="b shr">SHR</span></div>
-    <div class="rank"><span class="n">1</span><span class="name">Head of Staff</span></div>
-    <div class="rank"><span class="n">2</span><span class="name">Experienced Director</span></div>
-    <div class="rank"><span class="n">3</span><span class="name">Director</span></div>
-    <div class="rank"><span class="n">4</span><span class="name">Deputy Director</span></div>
-    <div class="rank"><span class="n">5</span><span class="name">Assistant Director</span></div>
-    <div class="rank"><span class="n">6</span><span class="name">Trial Director</span></div>
-  </div>
-
-  <div class="dept">
-    <div class="dh">Management Department <span class="b hr">High Rank</span></div>
-    <div class="rank"><span class="n">1</span><span class="name">Management Director</span></div>
-    <div class="rank"><span class="n">2</span><span class="name">Senior Management</span></div>
-    <div class="rank"><span class="n">3</span><span class="name">Management</span></div>
-    <div class="rank"><span class="n">4</span><span class="name">Junior Management</span></div>
-    <div class="rank"><span class="n">5</span><span class="name">Intern Management</span></div>
-  </div>
-
-  <div class="dept">
-    <div class="dh">Supervision Department <span class="b hr">High Rank</span></div>
-    <div class="rank"><span class="n">1</span><span class="name">Supervisory Director</span></div>
-    <div class="rank"><span class="n">2</span><span class="name">Senior Supervisor</span></div>
-    <div class="rank"><span class="n">3</span><span class="name">Supervisor</span></div>
-    <div class="rank"><span class="n">4</span><span class="name">Trial Supervisor</span></div>
-  </div>
-
-  <div class="dept">
-    <div class="dh">Internal Affairs <span class="b mr">Middle Rank</span></div>
-    <div class="rank"><span class="n">1</span><span class="name">Internal Affairs Director</span></div>
-    <div class="rank"><span class="n">2</span><span class="name">Senior Internal Affairs</span></div>
-    <div class="rank"><span class="n">3</span><span class="name">Internal Affairs</span></div>
-    <div class="rank"><span class="n">4</span><span class="name">Junior Internal Affairs</span></div>
-    <div class="rank"><span class="n">5</span><span class="name">Trial Internal Affairs</span></div>
-  </div>
-
-  <div class="dept">
-    <div class="dh">Administration Department <span class="b lr">Low Rank</span></div>
-    <div class="rank"><span class="n">1</span><span class="name">Lead Administration</span></div>
-    <div class="rank"><span class="n">2</span><span class="name">Senior Administration</span></div>
-    <div class="rank"><span class="n">3</span><span class="name">Administration</span></div>
-    <div class="rank"><span class="n">4</span><span class="name">Trial Administration</span></div>
-  </div>
-
-  <div class="dept">
-    <div class="dh">Moderation Department <span class="b lr">Low Rank</span></div>
-    <div class="rank"><span class="n">1</span><span class="name">Lead Moderator</span></div>
-    <div class="rank"><span class="n">2</span><span class="name">Senior Moderator</span></div>
-    <div class="rank"><span class="n">3</span><span class="name">Moderator</span></div>
-    <div class="rank"><span class="n">4</span><span class="name">Junior Moderator</span></div>
-    <div class="rank"><span class="n">5</span><span class="name">Trial Moderator</span></div>
-  </div>
-
-  <div class="divider"></div>
-  <h3>Additional roles — not ranks</h3>
-
-  <h4>Department dividers (just labels)</h4>
-  <p style="margin-bottom:6px">These grey <code>TRPC • …</code> roles only organise the role list. They grant nothing on their own.</p>
-  <div class="chips">
-    <span class="chip div">TRPC • Ownership team</span><span class="chip div">TRPC • Executives</span>
-    <span class="chip div">TRPC • Directive department</span><span class="chip div">TRPC • Management department</span>
-    <span class="chip div">TRPC • Supervision department</span><span class="chip div">TRPC • Internal affairs</span>
-    <span class="chip div">TRPC • Administration department</span><span class="chip div">TRPC • Moderation department</span>
-    <span class="chip div">TRPC • Staff team (divider)</span>
-  </div>
-
-  <h4>Access &amp; permission roles</h4>
-  <div class="roledef"><b>TRPC • Staff team</b> — the base role that marks someone as staff. Unlocks staff channels and the Staff Section passcode. Everyone on the team has it.</div>
-  <div class="roledef"><b>TRPC • High rank+</b> — auto-marks High Rank and above. Grants HR channels and permissions. Not a rank — a group pass.</div>
-  <div class="roledef"><b>TRPC • SHR+</b> — auto-marks Senior High Rank and above. Grants SHR channels and the SHR Section passcode.</div>
-  <div class="roledef"><b>TRPC • Ingame Co-owner perms</b> — grants in-game co-owner command access in the ER:LC server. A trusted permission given to senior staff, not a rank.</div>
-  <div class="roledef"><b>TRPC • Helper</b> — a member-support role for answering questions and helping newcomers. Not a moderation rank.</div>
-  <div class="roledef"><b>Staff Trainer</b> — an assignment for staff who are authorised to train new members. Holders get the Trainer Section passcode. It's a responsibility layered on top of your rank, not a step in the ladder.</div>
-
-  <h4>Status toggles (set by Melonly)</h4>
-  <div class="roledef"><b>TRPC • On duty staff</b> — switched on automatically when you start a shift in Melonly. It tells everyone you're actively moderating.</div>
-  <div class="roledef"><b>TRPC • On break staff</b> — switched on when you go on break in Melonly. You're clocked in but not currently moderating.</div>
-
-  <div class="note good"><b>Quick rule of thumb:</b> if a role has a department name and a clear "Trial → Lead/Director" progression, it's a <b>rank</b>. If it's a <code>+</code> pass, a status, a helper, a trainer, or a grey divider, it's an <b>additional role</b>.</div>
-</section>
-
-<!-- ================= JOIN THE TEAM ================= -->
-<section class="page" id="page-join">
-  <span class="eyebrow">Community</span>
-  <h2 class="section">Join the Staff Team</h2>
-  <p class="lead">Want to help run Toronto Roleplay? Here's exactly how staffing works — from applying to getting your first rank.</p>
-
-  <h3>Requirements</h3>
-  <ul class="clean">
-    <li><b>13 or older</b> (the Roblox/Discord minimum).</li>
-    <li>In the community for at least <b>2 weeks</b>.</li>
-    <li>A <b>clean record</b> — no recent serious punishments.</li>
-    <li>Able to <b>take screenshots and record clips</b> for evidence.</li>
-    <li>Can commit at least <b>2 hours per week</b>.</li>
-  </ul>
-
-  <h3>The process</h3>
-  <ol class="steps">
-    <li><b>Apply.</b> Submit the staff application through our <b>Melonly application form</b> (linked in the staff-applications channel). Melonly applications replace Google Forms here.</li>
-    <li><b>Review.</b> An HR+ reviews your answers. We look for maturity, honesty, clear writing, and genuine motivation — not "I want perms."</li>
-    <li><b>Awaiting Training.</b> If you're accepted, you'll be marked <b>Awaiting Training</b>, given the <b>Trainee Section</b> passcode, and added to the training pipeline. You are <b>not</b> a moderator yet — you can't take moderation actions until you've trained.</li>
-    <li><b>Training.</b> A <b>Staff Trainer</b> will schedule and run your session, walking you through the rules, commands, on-duty conduct, and Melonly logging.</li>
-    <li><b>Trial Moderator.</b> Pass training and you're ranked <b>Trial Moderator</b>, given the <b>Staff Section</b> passcode, and you're on the team.</li>
-  </ol>
-
-  <div class="note"><b>While you wait:</b> head to the Trainee Section (once you have the code), read every Community rule on this site, and learn the definitions in the Glossary. Coming in prepared is the fastest way to pass.</div>
-</section>
-
-<!-- ================= GLOSSARY ================= -->
-<section class="page" id="page-glossary">
-  <span class="eyebrow">Community</span>
-  <h2 class="section">Glossary</h2>
-  <p class="lead">The terms you'll see across the server and this handbook.</p>
-  <div class="tablewrap">
-    <table>
-      <thead><tr><th style="width:150px">Term</th><th>Meaning</th></tr></thead>
-      <tbody>
-        <tr><td><b>RDM</b></td><td>Random Deathmatch — killing without a roleplay reason</td></tr>
-        <tr><td><b>VDM</b></td><td>Vehicle Deathmatch — using a vehicle as a weapon without a reason</td></tr>
-        <tr><td><b>FailRP / FRP</b></td><td>Unrealistic roleplay</td></tr>
-        <tr><td><b>NLR</b></td><td>New Life Rule — forget your past life after death; don't return to the scene</td></tr>
-        <tr><td><b>Fear RP</b></td><td>Valuing your character's life realistically</td></tr>
-        <tr><td><b>Powergaming</b></td><td>Forcing actions onto others or using impossible abilities</td></tr>
-        <tr><td><b>Metagaming</b></td><td>Using out-of-character info for an in-character advantage</td></tr>
-        <tr><td><b>Cop-baiting</b></td><td>Provoking police purely to start a chase</td></tr>
-        <tr><td><b>NITRP</b></td><td>No Intention To Roleplay</td></tr>
-        <tr><td><b>Combat/RP logging</b></td><td>Leaving the server to dodge a roleplay consequence</td></tr>
-        <tr><td><b>IC / OOC</b></td><td>In Character / Out Of Character</td></tr>
-        <tr><td><b>LEO</b></td><td>Law Enforcement Officer</td></tr>
-        <tr><td><b>EMS</b></td><td>Emergency Medical Services</td></tr>
-        <tr><td><b>CoC</b></td><td>Chain of Command</td></tr>
-        <tr><td><b>LOA</b></td><td>Leave of Absence (requested in Melonly)</td></tr>
-        <tr><td><b>SPaG</b></td><td>Spelling, Punctuation and Grammar</td></tr>
-        <tr><td><b>VSM</b></td><td>Virtual Server Management — Melonly's in-game control tools</td></tr>
-        <tr><td><b>On duty / On break</b></td><td>Actively moderating / clocked in but paused (set in Melonly)</td></tr>
-        <tr><td><b>LR / MR / HR / SHR / LS</b></td><td>Low Rank / Middle Rank / High Rank / Senior High Rank / Leadership</td></tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-
-<!-- ================= STAFF SECTION (LOCKED) ================= -->
-<section class="page" id="page-staff">
-  <div class="lock" id="lock-staff">
-    <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 1 3 5v6c0 5 3.8 9.7 9 11 5.2-1.3 9-6 9-11V5l-9-4z"/></svg></div>
-    <h2>Staff Section</h2>
-    <p>This area is for accepted staff. Enter your Staff passcode to continue.</p>
-    <form data-unlock="staff"><input type="password" placeholder="Passcode" autocomplete="off" aria-label="Staff passcode"><button type="submit">Unlock</button></form>
-    <div class="err" data-err="staff"></div>
-    <div class="hint">Don't have it? You get the Staff passcode when you pass training and become a Trial Moderator.</div>
-  </div>
-
-  <div class="locked-content" id="content-staff" hidden>
-    <span class="eyebrow">Restricted · Staff</span>
-    <h2 class="section">Staff Section</h2>
-    <p class="lead">Everything you need to moderate Toronto Roleplay properly. All logging runs through Melonly — that section is required reading.</p>
-
-    <details class="acc" open>
-      <summary><span class="num">01</span> Staff Policy <span class="ch">+</span></summary>
-      <div class="acc-body">
-        <p>You are the face of TRPC. Members decide whether they stay based on how you treat them.</p>
-        <ul class="clean">
-          <li><b>Always act professionally.</b> Stay calm and polite, even with rule-breakers. If it's getting to you, go on break.</li>
-          <li><b>Use proper SPaG</b> in all official messages and while on duty. No slang in staff shouts, punishments, or records.</li>
-          <li><b>No silly behaviour on duty</b> — no messing around while moderating.</li>
-          <li><b>Behave even off duty.</b> Being staff doesn't grant rule-bypasses. Staff are held to a <b>stricter</b> standard than members.</li>
-          <li><b>Stay neutral</b> and treat everyone equally — friends included.</li>
-          <li><b>Never moderate a situation you're part of or angry about.</b> Hand it to another staff member.</li>
-          <li><b>Keep staff matters confidential.</b> Leaking staff chat or tickets means removal.</li>
-          <li><b>Don't ask or hint for promotions.</b> Professionalism and good judgement matter more than raw activity.</li>
-          <li><b>Put your Roblox name in your Discord nickname</b> so you're identifiable.</li>
-        </ul>
-        <div class="note"><b>Judgement is your most important tool.</b> No guide lists every situation. When unsure, ask the next rank up — politely — and look at every side before acting.</div>
-      </div>
-    </details>
-
-    <details class="acc">
-      <summary><span class="num">02</span> Command Usage <span class="ch">+</span></summary>
-      <div class="acc-body">
-        <p>Misusing commands is one of the fastest ways to get demoted or blacklisted. Follow these exactly.</p>
-        <h4>Username letter requirements</h4>
-        <p>To avoid hitting the wrong player, type a minimum number of letters of their username — or use their Roblox ID.</p>
-        <div class="tablewrap"><table>
-          <thead><tr><th>3+ letters</th><th>4+ letters</th><th>Half name</th><th>Full name / ID</th></tr></thead>
-          <tbody><tr>
-            <td><code>:to</code> <code>:view</code></td>
-            <td><code>:bring</code> <code>:tp</code> <code>:kill</code> <code>:heal</code> <code>:jail</code> <code>:respawn</code> <code>:load</code> <code>:wanted</code></td>
-            <td><code>:kick</code></td>
-            <td><code>:ban</code> <code>:mod</code> <code>:admin</code></td>
-          </tr></tbody>
-        </table></div>
-        <p>Rule of thumb: commands that <b>don't</b> affect the target need 3+ letters; commands that <b>do</b> need 4+. Kicks need half the username; bans and permission commands need the full name or, ideally, the Roblox ID. Format: <code>:jail Ryan</code></p>
-        <h4>"All" / "Others" commands are banned</h4>
-        <p>The only exceptions: healing everyone (<code>:heal all</code>) during a confirmed mass-RDM (5+ players), or when an HR+ explicitly authorises a specific command a specific number of times. Running all/others commands otherwise is treated as <b>raiding</b> and results in a <b>blacklist</b>. Melonly flags server-wide commands like <code>:ban all</code> automatically.</p>
-        <h4>Announcements &amp; off-duty</h4>
-        <p>The <span class="pill">H</span> hint command is fine for genuine, important, professional messages while on duty. The <span class="pill">M</span> announcement command only when an HR+ authorises it or this guide tells you to. Don't run commands off duty (except staff PMs or with SHR+ authorisation) — and off duty, hide that you're staff to keep RP realistic.</p>
-        <div class="note"><b>Golden rule:</b> if you wouldn't be comfortable explaining your use of a command to SHR, don't run it.</div>
-      </div>
-    </details>
-
-    <details class="acc">
-      <summary><span class="num">03</span> On-Duty Protocols <span class="ch">+</span></summary>
-      <div class="acc-body">
-        <ul class="clean">
-          <li><b>Go on duty properly</b> — put on your rank's staff livery, use a staff vehicle, and start your shift in Melonly.</li>
-          <li><b>No chatting on duty.</b> Use the on-duty staff channels for active staff matters only. Want to chat normally? Go on break first — and don't abuse break-hopping.</li>
-          <li><b>Park before you respond.</b> When a mod call comes in, pull your car over properly before walking up — don't abandon it in traffic or in someone's scene.</li>
-          <li><b>Always greet players professionally.</b> Keep a clean copy-paste ready.</li>
-          <li><b>Drive by the rules on duty</b> — no GTA driving. Sirens are fine to pull players over or signal an emergency.</li>
-          <li><b>Callsigns</b> — pick any you like, but don't impersonate a real department/PMC/criminal group or use an undercover plate while on duty.</li>
-        </ul>
-        <div class="card"><b style="color:var(--bone);font-family:'Oswald'">Greeting template</b><p style="margin:8px 0 0">"Hello! I'm [name], a [rank] with the TRPC staff team. How can I help? If I'm late or no longer needed, please say 'void'."</p></div>
-      </div>
-    </details>
-
-    <details class="acc">
-      <summary><span class="num">04</span> Handling Mod Calls &amp; Tickets <span class="ch">+</span></summary>
-      <div class="acc-body">
-        <h4>In-game mod call</h4>
-        <ol class="steps">
-          <li><b>Start your shift in Melonly</b> if you haven't, then respond and approach discreetly — observe before acting.</li>
-          <li><b>Confirm the rule break</b> with your own eyes or ask for a clip.</li>
-          <li><b>Greet the players</b> professionally.</li>
-          <li><b>Apply the correct punishment</b> from the ladder below — and <b>log it in Melonly</b>.</li>
-        </ol>
-        <h4>Discord ticket</h4>
-        <ol class="steps">
-          <li><b>Claim the ticket</b> so others know it's handled.</li>
-          <li><b>Ask for details and evidence</b> — clips, screenshots, usernames, timestamps.</li>
-          <li><b>Stay neutral</b> and hear all sides; verify the evidence is real and in context.</li>
-          <li><b>Apply the action and log it</b>, or escalate if it's ban-level (see below). Inform the user calmly and close the ticket.</li>
-        </ol>
-        <div class="note amber"><b>Bans:</b> Moderators and Administrators apply <b>warnings, jails, and kicks only</b>. They <b>cannot ban</b>. If a ban is needed, escalate to an HR+ with your evidence and they'll handle and log it.</div>
-      </div>
-    </details>
-
-    <details class="acc">
-      <summary><span class="num">05</span> Logging in Melonly <span class="ch">+</span></summary>
-      <div class="acc-body">
-        <p><b style="color:var(--bone)">All TRPC logging runs through Melonly</b> — shifts, punishments, infractions, and LOAs. If it isn't in Melonly, it didn't happen.</p>
-
-        <h4>Getting access</h4>
-        <p>Make sure you're added to the TRPC Melonly dashboard — open a ticket and an HR+/SHR will accept you. <b>Link your Roblox account</b>; it's required for in-game logging.</p>
-
-        <h4>Going on shift (every time you moderate)</h4>
-        <ol class="steps">
-          <li>Open the Melonly <b>Moderator Panel</b>.</li>
-          <li>Click <b>Start Shift</b> (top-left). This logs your time and counts toward your quota.</li>
-          <li>Use <b>Start Break</b> when you step away — it pauses your time and marks you as not moderating.</li>
-          <li>Click <b>End Shift</b> when you're done.</li>
-          <li>Check your hours anytime: the <b>3 dots</b> next to your name → <b>View My Shifts</b>.</li>
-        </ol>
-        <p>Your <span class="pill">On duty</span> and <span class="pill">On break</span> Discord roles update automatically with your shift.</p>
-
-        <h4>Logging a punishment</h4>
-        <p>Log <b>every</b> warning, jail, and kick. Three ways:</p>
-        <ul class="clean">
-          <li><b>Moderator Panel</b> — create a punishment log with the player, type, reason, and evidence.</li>
-          <li><b>In-game</b> — use the <code>:log</code> command to punish and log in one step. (Custom log types are set up on the dashboard first.)</li>
-          <li><b>Auto-log</b> — kicks and bans issued in-game are logged automatically; add the reason later by editing the log in the panel.</li>
-        </ul>
-        <p>Need to jump into a scene's voice channel? Use <code>:log vc s1</code> (where <code>s1</code> is the scene's configured abbreviation).</p>
-
-        <h4>Bans, strikes &amp; LOA</h4>
-        <ul class="clean">
-          <li><b>Bans</b> are applied by HR+ in the Melonly panel (in-game bans auto-log; the reason is added in the panel).</li>
-          <li><b>Staff strikes</b> are recorded by HR+ in Melonly's <b>Infractions</b> module.</li>
-          <li><b>Going inactive?</b> Request a <b>Leave of Absence (LOA)</b> through Melonly before you disappear.</li>
-        </ul>
-
-        <div class="note amber"><b>Don't get flagged.</b> Melonly catches staff using moderation commands while off duty, and alerts on server-wide commands like <code>:ban all</code>. Only moderate while on shift.</div>
-
-        <h4>Tutorials &amp; docs</h4>
-        <div class="links">
-          <a class="lcard" href="https://www.youtube.com/watch?v=O3FlA4IOwj4" target="_blank" rel="noopener"><span class="yt"></span><span><b>Using the Melonly Mod Panel</b><small>YouTube · walkthrough</small></span></a>
-          <a class="lcard" href="https://www.youtube.com/watch?v=Z859nkAKlvM" target="_blank" rel="noopener"><span class="yt"></span><span><b>Melonly Mod Panel Tutorial</b><small>YouTube · beginner guide</small></span></a>
-          <a class="lcard" href="https://docs.melonly.xyz/Modpanel/shifts" target="_blank" rel="noopener"><span class="doc">M</span><span><b>Docs — Shifts</b><small>docs.melonly.xyz</small></span></a>
-          <a class="lcard" href="https://docs.melonly.xyz/docs/Dashboard/erlc" target="_blank" rel="noopener"><span class="doc">M</span><span><b>Docs — ER:LC integration &amp; :log</b><small>docs.melonly.xyz</small></span></a>
+      {/* Sticky Nav */}
+      <div className="sticky top-0 z-40 w-full bg-background/80 backdrop-blur-xl border-b border-border shadow-2xl shadow-black/50">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-center justify-start md:justify-center space-x-2 md:space-x-8 overflow-x-auto py-5 scrollbar-hide">
+            {navLinks.map(link => (
+              <a
+                key={link.id}
+                href={`#${link.id}`}
+                className={`whitespace-nowrap px-5 py-2.5 text-sm md:text-base font-mono uppercase tracking-wider transition-all duration-300 rounded-sm ${activeSection === link.id ? 'text-primary bg-primary/10 border-b-2 border-primary font-bold' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
         </div>
       </div>
-    </details>
 
-    <details class="acc">
-      <summary><span class="num">06</span> Punishment Ladder <span class="ch">+</span></summary>
-      <div class="acc-body">
-        <p>This is the official punishment guide. <b>Don't invent punishments</b> — find the closest match, use your judgement, or ask an HR+. Punishments escalate with each offence.</p>
-        <div class="note"><b>Session rule:</b> a "session" is one server session. <b>Three warnings in a single session = an automatic 30-minute kick.</b> The count resets each new session.<br><b>Bans (HR+):</b> any ban-level punishment is applied by High Rank or above. Moderators/Admins escalate with evidence.</div>
+      <main className="max-w-7xl mx-auto pb-40">
+        {/* Requirements */}
+        <section id="requirements" className="py-32 px-4 scroll-mt-24">
+          <SectionHeader number="01" title="Requirements" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { icon: <UserX size={40} strokeWidth={1.5} />, title: 'Age: 13+', desc: 'Discord TOS strictly enforced. No exceptions whatsoever.' },
+              { icon: <Mic size={40} strokeWidth={1.5} />, title: 'Working Mic', desc: 'Clear audio required. No loud static, fan noise, or background chatter.' },
+              { icon: <ShieldAlert size={40} strokeWidth={1.5} />, title: 'Maturity', desc: 'Bringing drama or toxicity from other servers results in an immediate ban.' }
+            ].map((r, i) => (
+              <FadeIn key={i} delay={i * 0.1}>
+                <div className="p-10 h-full border border-border bg-card rounded-xl flex flex-col items-center text-center group hover:border-primary/50 transition-all duration-500 hover:-translate-y-2 shadow-xl shadow-black/20">
+                  <div className="text-primary mb-8 p-6 bg-background rounded-full border border-border group-hover:scale-110 group-hover:border-primary/50 group-hover:bg-primary/10 transition-all duration-500 shadow-inner">
+                    {r.icon}
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-4 font-mono uppercase tracking-tight">{r.title}</h3>
+                  <p className="text-gray-400 leading-relaxed text-lg">{r.desc}</p>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+        </section>
 
-        <div class="tier-h min"><span class="dot"></span>Minor Offences <span style="font-weight:400;color:var(--muted);font-size:12px;text-transform:none;letter-spacing:0">Mods/Admins handle fully</span></div>
-        <div class="tablewrap"><table>
-          <thead><tr><th>Offence</th><th>1st</th><th>2nd</th><th>3rd</th><th>Example</th></tr></thead>
-          <tbody>
-            <tr><td><b>Unrealistic avatar</b></td><td>Verbal Warning</td><td>Warning</td><td>Kick 30m</td><td>Headless, Korblox</td></tr>
-            <tr><td><b>Restricted weapon</b></td><td>Verbal Warning</td><td>Warning</td><td>Kick 30m</td><td>M249, sniper</td></tr>
-            <tr><td><b>Restricted vehicle</b></td><td>Verbal Warning</td><td>Warning</td><td>Kick 30m</td><td>Supercar / hypercar</td></tr>
-            <tr><td><b>Car abuse</b></td><td>Warning</td><td>Kick 30m</td><td>Kick 1h</td><td>In/out of car to dodge arrest</td></tr>
-            <tr><td><b>Minor FailRP</b></td><td>Verbal Warning</td><td>Warning</td><td>Kick 1h</td><td>Driving off after a major crash</td></tr>
-            <tr><td><b>Breaking NLR</b></td><td>Warning</td><td>Kick 30m</td><td>Kick 1h</td><td>Returning to the scene after death</td></tr>
-            <tr><td><b>Fear RP violation</b></td><td>Warning</td><td>Kick 30m</td><td>Kick 1h</td><td>Drawing while held at gunpoint</td></tr>
-            <tr><td><b>Tool / emote abuse</b></td><td>Warning</td><td>Kick 30m</td><td>Kick 1h</td><td>Glitching through walls</td></tr>
-            <tr><td><b>Player disrespect</b></td><td>Warning</td><td>Kick 30m</td><td>Kick 1h</td><td>Mild insults / toxicity</td></tr>
-            <tr><td><b>Abusing the mod-call</b></td><td>Warning</td><td>Kick 30m</td><td>Kick 1h</td><td>Repeated false mod calls</td></tr>
-            <tr><td><b>Minor RDM</b></td><td>Warning + Jail</td><td>Kick 30m</td><td>Kick 1h</td><td>Shooting one player, no reason</td></tr>
-            <tr><td><b>Minor VDM</b></td><td>Warning + Jail</td><td>Kick 30m</td><td>Kick 1h</td><td>Ramming one car, no reason</td></tr>
-          </tbody>
-        </table></div>
+        {/* Core Rules */}
+        <section id="core-rules" className="py-32 px-4 scroll-mt-24 border-t border-border/50">
+          <SectionHeader number="02" title="Core RP Rules" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {[
+              { title: 'Fear RP', desc: 'If someone pulls a gun on you, comply. You cannot run or draw your own weapon. Value your life as if it were real.' },
+              { title: 'Fail RP', desc: 'No unrealistic stunts. Car flipped? Call a tow truck. Damaged vehicle? Pull over and roleplay the damage — no driving into a mod shop mid-pursuit.' },
+              { title: 'Cop Baiting', desc: 'Do not speed past police stations or honk at officers to trigger a chase. It is unrealistic and not tolerated.' },
+              { title: 'Prioritize Realism', desc: 'You cannot rob a bank every 5 minutes. Develop a proper character storyline. No treating the server like a public lobby or team deathmatch.' },
+              { title: 'Greenzones', desc: 'No violence, robberies, or citizen arrests at spawn locations, hospitals, or government buildings where players are setting up their characters.' },
+              { title: 'New Life Rule (NLR)', desc: 'If you die, you forget everything from that scene. Spawn somewhere else, stay away for at least 15 minutes. No revenge allowed.' },
+              { title: 'Powergaming', desc: 'You cannot type that you magically escaped handcuffs. Every action must give the other player a fair chance to react.' },
+              { title: 'Metagaming', desc: 'You cannot use out-of-character information — Discord chats, stream sniping — to influence your in-character decisions. Your character doesn\'t know names until shown an ID.' }
+            ].map((rule, i) => (
+              <FadeIn key={i} delay={0.1}>
+                <div className="relative h-full flex flex-col p-8 md:p-10 border border-border bg-card rounded-xl overflow-hidden group hover:border-primary/40 transition-colors shadow-xl shadow-black/20">
+                  <div className="absolute top-0 left-0 w-1.5 h-full bg-border group-hover:bg-primary transition-colors duration-500" />
+                  <h3 className="text-3xl font-bold text-white mb-4 font-mono uppercase tracking-tight">{rule.title}</h3>
+                  <p className="text-gray-300 text-lg leading-relaxed">{rule.desc}</p>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+        </section>
 
-        <div class="tier-h maj"><span class="dot"></span>Major Offences <span style="font-weight:400;color:var(--muted);font-size:12px;text-transform:none;letter-spacing:0">Kicks by Mods/Admins · bans escalate to HR+</span></div>
-        <div class="tablewrap"><table>
-          <thead><tr><th>Offence</th><th>1st</th><th>2nd</th><th>3rd</th><th>Example</th></tr></thead>
-          <tbody>
-            <tr><td><b>Staff evasion</b></td><td>Kick 30m</td><td>Kick 1h</td><td>1 Day Ban (HR+)</td><td>Running from on-duty staff</td></tr>
-            <tr><td><b>Respawn/leave to avoid arrest</b></td><td>Kick 30m</td><td>Kick 1h</td><td>1 Day Ban (HR+)</td><td>Respawning mid-arrest</td></tr>
-            <tr><td><b>Spawn killing</b></td><td>Kick 30m</td><td>Kick 1h</td><td>1 Day Ban (HR+)</td><td>Killing players at spawn repeatedly</td></tr>
-            <tr><td><b>Repeated RDM / VDM</b></td><td>Kick 1h</td><td>1 Day Ban (HR+)</td><td>3 Day Ban (HR+)</td><td>Multiple players killed/rammed</td></tr>
-            <tr><td><b>Impersonating staff</b></td><td>Kick 30m</td><td>Kick 1h</td><td>1 Day Ban (HR+)</td><td>Pretending to be staff</td></tr>
-            <tr><td><b>No intention to roleplay</b></td><td>Kick 30m</td><td>Kick 1h</td><td>2 Day Ban (HR+)</td><td>Refusing/avoiding RP</td></tr>
-            <tr><td><b>Harassment / targeting</b></td><td>Kick 1h</td><td>2 Day Ban (HR+)</td><td>5 Day Ban (HR+)</td><td>Repeatedly targeting a player</td></tr>
-            <tr><td><b>Disturbing a major scene</b></td><td>Kick 30m</td><td>1 Day Ban (HR+)</td><td>3 Day Ban (HR+)</td><td>Blocking/ramming an active scene</td></tr>
-            <tr><td><b>Cuff-rush / auto-jail</b></td><td>Kick 1h</td><td>1 Day Ban (HR+)</td><td>3 Day Ban (HR+)</td><td>Cuffing with no RP and instant jail</td></tr>
-            <tr><td><b>Excessive toxicity / foul language</b></td><td>Kick 1h</td><td>2 Day Ban (HR+)</td><td>5 Day Ban (HR+)</td><td>Constant abuse at others</td></tr>
-          </tbody>
-        </table></div>
+        {/* Civ & Weapons */}
+        <section id="civ-weapons" className="py-32 px-4 scroll-mt-24 border-t border-border/50">
+          <SectionHeader number="03" title="Civ & Weapons" />
+          <FadeIn delay={0.2}>
+            <div className="border border-border bg-card p-10 md:p-16 rounded-2xl relative overflow-hidden shadow-2xl shadow-black/40">
+              <Crosshair className="absolute -bottom-20 -right-20 text-primary/[0.03] w-[500px] h-[500px] pointer-events-none rotate-12" />
+              <Car className="absolute top-10 right-10 text-primary/[0.05] w-40 h-40 pointer-events-none -rotate-12" />
 
-        <div class="tier-h sev"><span class="dot"></span>Severe Offences <span style="font-weight:400;color:var(--muted);font-size:12px;text-transform:none;letter-spacing:0">HR+ only · Mods/Admins document &amp; report immediately</span></div>
-        <div class="tablewrap"><table>
-          <thead><tr><th>Offence</th><th>1st</th><th>2nd</th><th>3rd</th><th>Example</th></tr></thead>
-          <tbody>
-            <tr><td><b>Exploiting / hacking</b></td><td>180 Day Ban</td><td>Permanent</td><td>Permanent</td><td>Aimbot, flying, flinging</td></tr>
-            <tr><td><b>Doxxing / real-life threats</b></td><td>Permanent</td><td>—</td><td>—</td><td>Sharing personal info / threats</td></tr>
-            <tr><td><b>Racism / hate speech / slurs</b></td><td>14 Day Ban</td><td>60 Day Ban</td><td>Permanent</td><td>Slurs, hateful conduct</td></tr>
-            <tr><td><b>Other discrimination</b></td><td>14 Day Ban</td><td>30 Day Ban</td><td>60 Day Ban</td><td>Homophobia, sexism, ableism</td></tr>
-            <tr><td><b>NSFW actions / ERP</b></td><td>14 Day Ban</td><td>30 Day Ban</td><td>Permanent</td><td>Sexual roleplay or content</td></tr>
-            <tr><td><b>Extremism / recreating tragedies</b></td><td>14 Day Ban</td><td>30 Day Ban</td><td>60 Day Ban</td><td>Recreating real-world attacks</td></tr>
-            <tr><td><b>Banned roleplay (TOS)</b></td><td>7 Day Ban</td><td>14 Day Ban</td><td>30 Day Ban</td><td>Bomb, terror, torture RP</td></tr>
-            <tr><td><b>Ban evasion (alts)</b></td><td>Extend + 14 Day</td><td>30 Day Ban</td><td>Permanent</td><td>Using an alt to evade</td></tr>
-            <tr><td><b>Bypassing chat filter</b></td><td>5 Day Ban</td><td>10 Day Ban</td><td>30 Day Ban</td><td>Evading the filter to slur/insult</td></tr>
-            <tr><td><b>Rejoining before a kick ends</b></td><td>5 Day Ban</td><td>10 Day Ban</td><td>30 Day Ban</td><td>Returning before the timer is up</td></tr>
-            <tr><td><b>Leaving to avoid punishment</b></td><td>5 Day Ban</td><td>14 Day Ban</td><td>30 Day Ban</td><td>Leaving to dodge staff action</td></tr>
-          </tbody>
-        </table></div>
-        <p style="color:var(--muted);font-size:14px">If an offence isn't listed, apply the closest match and use your judgement, or ask an HR+. Never make up your own values.</p>
-      </div>
-    </details>
+              <ul className="space-y-10 relative z-10 max-w-5xl">
+                {[
+                  "No military-grade rifles as a walking civilian — it triggers an immediate tactical response from law enforcement.",
+                  "Weapons must be properly concealed and require a valid RP reason to draw.",
+                  "Self-defense requires real justification — not just 'they insulted me or gave me a ticket'.",
+                  "Realistic driving physics — no civilian sedan through thick mud or over steep mountains.",
+                  "Popped tires from spike strips = slow down immediately and stop. No driving on bare rims at 100mph.",
+                  "Your character's wealth, lifestyle, and vehicle must match the backstory you wrote in your application."
+                ].map((rule, i) => (
+                  <li key={i} className="flex items-start gap-6 group">
+                    <div className="mt-1.5 w-8 h-8 rounded bg-background flex items-center justify-center shrink-0 border border-primary/30 shadow-[0_0_15px_rgba(212,160,23,0.1)] group-hover:border-primary/80 transition-colors">
+                      <div className="w-2.5 h-2.5 bg-primary rounded-sm group-hover:scale-125 transition-transform" />
+                    </div>
+                    <span className="text-gray-200 text-xl md:text-2xl font-medium leading-relaxed group-hover:text-white transition-colors">{rule}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </FadeIn>
+        </section>
 
-    <details class="acc">
-      <summary><span class="num">07</span> HR Guide (High Rank) <span class="ch">+</span></summary>
-      <div class="acc-body">
-        <p>High Rank (Supervision &amp; Management) leads the team day-to-day, reports to SHR, and is the first tier with <b>ban authority</b> and <b>training authority</b>.</p>
-        <h4>Responsibilities</h4>
-        <ul class="clean">
-          <li><b>Lead and supervise</b> Moderators, Administrators, and Internal Affairs.</li>
-          <li><b>Handle bans.</b> When a Mod/Admin escalates a ban, confirm the evidence and apply it in Melonly — or apply bans directly when handling situations yourself.</li>
-          <li><b>Train new staff</b> (or assign Staff Trainers) and run training sessions.</li>
-          <li><b>Recruit</b> — review Melonly applications, interview, and decide who enters training.</li>
-          <li><b>Handle escalations</b> beyond LR/MR authority.</li>
-          <li><b>Run activity checks</b>, enforce quotas via Melonly shift time, and approve LOA requests.</li>
-          <li><b>Promote/demote</b> lower staff within cooldowns, and log every change with a reason.</li>
-          <li><b>Issue staff strikes</b> in Melonly's Infractions module and investigate staff reports from IA.</li>
-          <li><b>Report upward to SHR</b> on team health, problem cases, and policy questions.</li>
-        </ul>
-        <h4>Best practices</h4>
-        <ul class="clean">
-          <li><b>Log everything in Melonly</b> — promotions, demotions, strikes, and bans, each with a clear reason.</li>
-          <li><b>Be consistent.</b> Apply the rules to staff exactly as you'd want them applied to you.</li>
-          <li><b>Mentor before you punish.</b> New staff make mistakes — coach first, discipline if it continues.</li>
-          <li><b>Escalate the big calls</b> — community-wide policy, mass incidents, and permanent bans go to SHR.</li>
-        </ul>
-        <div class="card"><b style="color:var(--bone);font-family:'Oswald'">Staff strike system</b>
-          <ul class="clean" style="margin:8px 0 0">
-            <li><b>Strike 1</b> — formal warning (logged in Melonly).</li>
-            <li><b>Strike 2</b> — second warning + record note. Blocks promotion for MR+.</li>
-            <li><b>Strike 3</b> — demotion review (applies through to SHR).</li>
-            <li><b>Severe misconduct</b> (abuse, leaks, bribes) — immediate removal review by SHR.</li>
-          </ul>
+        {/* Scenarios */}
+        <section id="scenarios" className="py-32 px-4 scroll-mt-24 border-t border-border/50">
+          <SectionHeader number="04" title="Scenario Examples" />
+          <p className="text-gray-400 text-xl leading-relaxed mb-16 max-w-3xl">
+            Review the following situations to understand how the rules apply in practice. Every rule comes down to a simple question: would this happen in real life?
+          </p>
+          <div className="space-y-10">
+            {scenarios.map((s, i) => (
+              <FadeIn key={i} delay={0.05}>
+                <div className="border border-border bg-card rounded-2xl overflow-hidden shadow-xl shadow-black/30">
+                  {/* Rule label */}
+                  <div className="px-8 py-5 border-b border-border bg-background/60 flex items-center gap-3">
+                    <AlertTriangle className="text-primary shrink-0" size={18} />
+                    <span className="font-mono font-bold uppercase tracking-widest text-primary text-sm">{s.rule}</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border">
+                    {/* Correct */}
+                    <div className="p-8 md:p-10 flex flex-col gap-5">
+                      <div className="flex items-center gap-3">
+                        <CheckCircle2 className="text-emerald-500 shrink-0" size={22} />
+                        <span className="font-mono font-bold uppercase tracking-widest text-emerald-500 text-sm">Correct</span>
+                      </div>
+                      <p className="text-gray-200 text-lg leading-relaxed font-medium">{s.correct.text}</p>
+                    </div>
+
+                    {/* Incorrect */}
+                    <div className="p-8 md:p-10 flex flex-col gap-5 bg-red-950/10">
+                      <div className="flex items-center gap-3">
+                        <XCircle className="text-red-500 shrink-0" size={22} />
+                        <span className="font-mono font-bold uppercase tracking-widest text-red-500 text-sm">Incorrect</span>
+                      </div>
+                      <p className="text-gray-300 text-lg leading-relaxed italic">"{s.incorrect.text}"</p>
+                    </div>
+                  </div>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+        </section>
+      </main>
+
+      {/* Footer */}
+      <footer className="pt-24 pb-16 border-t border-border bg-card relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-t from-primary/5 via-background to-background" />
+        <div className="max-w-7xl mx-auto px-4 relative z-10">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8 text-gray-500 text-sm md:text-base font-mono uppercase tracking-wider">
+            <div className="flex items-center gap-4">
+              <img src={nysrpLogo} className="w-10 h-10 opacity-60" alt="logo" />
+              <span>NYSRP &copy; {new Date().getFullYear()}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Gavel size={20} />
+              <span>Roleplay Required. Drama Prohibited.</span>
+            </div>
+          </div>
         </div>
-      </div>
-    </details>
-
-    <details class="acc">
-      <summary><span class="num">08</span> Promotion Cooldowns <span class="ch">+</span></summary>
-      <div class="acc-body">
-        <p>Minimum wait between promotions. Don't ask or hint for one.</p>
-        <ul class="clean">
-          <li><b>Moderator &amp; Administrator</b> — 3 days</li>
-          <li><b>Internal Affairs</b> — 5 days</li>
-          <li><b>High Rank</b> — 1 week</li>
-          <li><b>Management / SHR</b> — 2 weeks</li>
-        </ul>
-        <p>For MR and above, <b>2 strikes blocks a promotion</b> and <b>3 strikes triggers a demotion review</b> — all the way up to SHR. A demotion for max strikes resets the count.</p>
-      </div>
-    </details>
-  </div>
-</section>
-
-<!-- ================= TRAINEE SECTION (LOCKED) ================= -->
-<section class="page" id="page-trainee">
-  <div class="lock" id="lock-trainee">
-    <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 1 3 5v6c0 5 3.8 9.7 9 11 5.2-1.3 9-6 9-11V5l-9-4z"/></svg></div>
-    <h2>Trainee Section</h2>
-    <p>For members who've been accepted and are awaiting or in training.</p>
-    <form data-unlock="trainee"><input type="password" placeholder="Passcode" autocomplete="off" aria-label="Trainee passcode"><button type="submit">Unlock</button></form>
-    <div class="err" data-err="trainee"></div>
-    <div class="hint">You get this passcode the moment your staff application is accepted.</div>
-  </div>
-
-  <div class="locked-content" id="content-trainee" hidden>
-    <span class="eyebrow">Restricted · Trainee</span>
-    <h2 class="section">Trainee Section</h2>
-    <p class="lead">Welcome to the team-in-waiting. You've been accepted and marked <b>Awaiting Training</b>. You're not a moderator yet — but you're close. Here's how to nail it.</p>
-
-    <div class="note good"><b>Your status: Awaiting Training.</b> You can't take any moderation actions until a Staff Trainer has run your session and passed you. Don't use staff commands, don't warn or kick anyone — just learn and be present.</div>
-
-    <h3>What to do while you wait</h3>
-    <ol class="steps">
-      <li><b>Read every Community section</b> of this handbook — Server Rules, Discord Rules, In-Game Rules, and the Chain of Command.</li>
-      <li><b>Learn the Glossary cold.</b> You'll be expected to know RDM, VDM, FailRP, NLR, Fear RP, metagaming, and powergaming by heart.</li>
-      <li><b>Set up Melonly.</b> Open a ticket to get added to the dashboard and link your Roblox account so you're ready to log from day one.</li>
-      <li><b>Stay active and professional</b> in the server. Trainers notice who's engaged.</li>
-      <li><b>Be patient.</b> A Staff Trainer will reach out to schedule your session — don't ping HR asking for it.</li>
-    </ol>
-
-    <h3>What training will cover</h3>
-    <ul class="clean">
-      <li><b>The rules and definitions</b> — and how to apply them fairly.</li>
-      <li><b>Commands</b> — the username letter requirements and the all/others rule.</li>
-      <li><b>On-duty conduct</b> — shifts, professionalism, greetings, and SPaG.</li>
-      <li><b>Melonly logging</b> — starting shifts and logging every punishment.</li>
-      <li><b>Live practice</b> — mock scenarios where you respond while your trainer watches.</li>
-    </ul>
-
-    <h3>How to pass</h3>
-    <p>There's no written test. You pass by <b>showing your trainer you understand the rules and can handle situations calmly, fairly, and professionally</b> in the mock scenarios. Know your definitions, keep good SPaG, gather evidence before acting, and ask when you're unsure.</p>
-
-    <div class="note"><b>Pass, and you're in.</b> You'll be ranked <b>Trial Moderator</b> and given the Staff Section passcode. Then the real Staff Section becomes your home base.</div>
-  </div>
-</section>
-
-<!-- ================= TRAINER SECTION (LOCKED) ================= -->
-<section class="page" id="page-trainer">
-  <div class="lock" id="lock-trainer">
-    <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 1 3 5v6c0 5 3.8 9.7 9 11 5.2-1.3 9-6 9-11V5l-9-4z"/></svg></div>
-    <h2>Trainer Section</h2>
-    <p>For staff who hold the <b>Staff Trainer</b> role.</p>
-    <form data-unlock="trainer"><input type="password" placeholder="Passcode" autocomplete="off" aria-label="Trainer passcode"><button type="submit">Unlock</button></form>
-    <div class="err" data-err="trainer"></div>
-    <div class="hint">Issued with the Staff Trainer role by the Head of Staff or an SHR.</div>
-  </div>
-
-  <div class="locked-content" id="content-trainer" hidden>
-    <span class="eyebrow">Restricted · Trainer</span>
-    <h2 class="section">Trainer Guide</h2>
-    <p class="lead">For staff with the Staff Trainer role. Your job is to turn an Awaiting-Training member into a confident Trial Moderator. A trainee must not moderate alone until you've passed them.</p>
-
-    <h3>Before the session</h3>
-    <ul class="clean">
-      <li>Confirm the trainee has <b>read the Community sections</b> and the <b>Glossary</b>.</li>
-      <li>Make sure they're <b>set up in Melonly</b> with a linked Roblox account.</li>
-      <li>Schedule a time and make sure they can join the staff VC and the ER:LC server.</li>
-    </ul>
-
-    <h3>The session, phase by phase</h3>
-    <details class="acc" open><summary><span class="num">1</span> Theory <span class="ch">+</span></summary><div class="acc-body">Welcome them, set expectations, and run through the rules, the punishment ladder, and the Chain of Command. Stress professionalism and SPaG.</div></details>
-    <details class="acc"><summary><span class="num">2</span> Commands &amp; tools <span class="ch">+</span></summary><div class="acc-body">Walk through the commands their rank uses, the username letter requirements, and the all/others ban. Demonstrate once, then have them perform each one. Stress that abuse leads to demotion or blacklist.</div></details>
-    <details class="acc"><summary><span class="num">3</span> Melonly logging <span class="ch">+</span></summary><div class="acc-body">Show them how to start a shift, take a break, end a shift, and log a punishment (panel, in-game <code>:log</code>, and auto-logged kicks). Have them log a practice punishment themselves.</div></details>
-    <details class="acc"><summary><span class="num">4</span> Shadowing <span class="ch">+</span></summary><div class="acc-body">Have the trainee watch you handle a real or mock mod call while you explain your reasoning out loud.</div></details>
-    <details class="acc"><summary><span class="num">5</span> Hands-on (supervised) <span class="ch">+</span></summary><div class="acc-body">Run the mock scenarios below and let the trainee respond while you supervise. Correct mistakes gently and immediately, then let them retry.</div></details>
-    <details class="acc"><summary><span class="num">6</span> Evaluation &amp; sign-off <span class="ch">+</span></summary><div class="acc-body">Give honest, specific feedback. Pass → tell an HR+ to rank them Trial Moderator and hand over the Staff passcode. Not ready → schedule a re-training rather than rejecting them.</div></details>
-
-    <h3>Mock scenarios to run</h3>
-    <ol class="rules">
-      <li>A player is <b>RDMing</b> — the trainee observes, confirms, applies the right punishment, and logs it in Melonly.</li>
-      <li>A <b>toxic member in Discord</b> — the trainee handles the ticket and applies the right tier.</li>
-      <li>A <b>"he-said-she-said" RDM dispute</b> — tests neutrality and evidence-gathering.</li>
-      <li>A situation that <b>needs a ban</b> — tests whether they correctly escalate to HR+ instead of trying to ban.</li>
-      <li>A <b>trick scenario</b> where the "rule break" is actually allowed — tests whether they wrongly punish (they shouldn't).</li>
-    </ol>
-
-    <h3>What to evaluate</h3>
-    <ul class="clean">
-      <li>Knows the rules and definitions cold.</li>
-      <li>Uses commands correctly, including letter requirements and the all/others rule.</li>
-      <li>Always gathers evidence before acting.</li>
-      <li>Applies the correct tier — and escalates bans to HR+ instead of over-reaching.</li>
-      <li>Logs every action in Melonly and starts/ends shifts properly.</li>
-      <li>Stays calm, professional, and neutral, with good SPaG.</li>
-    </ul>
-
-    <div class="note"><b>Log the result.</b> Record each training (pass or re-train) in Melonly so there's a clear record, and tell the HR team so the rank and Staff passcode can be handed over.</div>
-  </div>
-</section>
-
-<!-- ================= SHR SECTION (LOCKED) ================= -->
-<section class="page" id="page-shr">
-  <div class="lock" id="lock-shr">
-    <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 1 3 5v6c0 5 3.8 9.7 9 11 5.2-1.3 9-6 9-11V5l-9-4z"/></svg></div>
-    <h2>SHR Section</h2>
-    <p>Senior High Rank and above only.</p>
-    <form data-unlock="shr"><input type="password" placeholder="Passcode" autocomplete="off" aria-label="SHR passcode"><button type="submit">Unlock</button></form>
-    <div class="err" data-err="shr"></div>
-    <div class="hint">Held by the SHR Council, the Directive Department, and Ownership.</div>
-  </div>
-
-  <div class="locked-content" id="content-shr" hidden>
-    <span class="eyebrow">Restricted · Senior High Rank</span>
-    <h2 class="section">SHR Section</h2>
-    <p class="lead">For Senior High Rank and above — Executives, the Directive Department, and Ownership. You set direction, make the final calls below Leadership, and manage the HR team.</p>
-
-    <h3>Responsibilities</h3>
-    <ul class="clean">
-      <li><b>Manage the HR team</b> — support, oversee, and where necessary remove HRs.</li>
-      <li><b>Approve major and permanent bans, blacklists, and staff removals.</b></li>
-      <li><b>Set and update policy</b>, including this handbook.</li>
-      <li><b>Make the final decision</b> on major disputes and escalated ban appeals.</li>
-      <li><b>Manage infrastructure</b> — the Melonly dashboard, bots, integrations, and configuration (or delegate to a dev team).</li>
-      <li><b>Handle partnerships and external representation.</b></li>
-      <li><b>Lead crisis response</b> — raids, mass rule-breaks, leaks, and major drama. Melonly's raid-revert tools are your friend here.</li>
-      <li><b>Oversee every department and tier</b> of the community.</li>
-    </ul>
-
-    <h3>Best practices</h3>
-    <ul class="clean">
-      <li><b>Lead by example.</b> The standard you walk past is the standard you set.</li>
-      <li><b>Empower HR; don't micromanage.</b> Let HR run the team and step in for the big calls.</li>
-      <li><b>Keep decisions documented and consistent</b> so the community trusts the process.</li>
-      <li><b>Stay calm in a crisis.</b> Decisions made while angry damage the community.</li>
-      <li><b>Review this handbook regularly</b> and keep it current.</li>
-      <li><b>Real-life safety overrides everything</b> — doxxing, threats, and predatory behaviour are handled immediately and may be reported to platform authorities.</li>
-    </ul>
-
-    <h3>Who can do what</h3>
-    <div class="tablewrap"><table>
-      <thead><tr><th>Action</th><th>LR</th><th>MR</th><th>HR</th><th>SHR</th><th>LS</th></tr></thead>
-      <tbody>
-        <tr><td>Warn / jail / kick</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
-        <tr><td>Apply a ban</td><td>❌ escalate</td><td>❌ escalate</td><td>✅</td><td>✅</td><td>✅</td></tr>
-        <tr><td>Permanent ban / blacklist</td><td>❌</td><td>❌</td><td>⚠️ w/ SHR sign-off</td><td>✅</td><td>✅</td></tr>
-        <tr><td>Review ban appeals</td><td>❌</td><td>✅ minor</td><td>✅</td><td>✅ all</td><td>✅</td></tr>
-        <tr><td>Promote / demote staff</td><td>❌</td><td>❌</td><td>✅ lower</td><td>✅</td><td>✅</td></tr>
-        <tr><td>Issue staff strikes</td><td>❌</td><td>⚠️ report</td><td>✅</td><td>✅</td><td>✅</td></tr>
-        <tr><td>Change policy / handbook</td><td>❌</td><td>❌</td><td>⚠️ propose</td><td>✅</td><td>✅</td></tr>
-      </tbody>
-    </table></div>
-  </div>
-</section>
-
-<footer>
-  <b>Toronto Roleplay</b> · Official Community &amp; Staff Handbook · Est. 2026<br>
-  Everyone in the community is responsible for knowing what's in this handbook.
-</footer>
-
-</main>
-</div>
-
-<script>
-(function(){
-  // ----- Passcodes (edit these strings to change the codes) -----
-  var CODES = {
-    staff:   "Harbour-Granite-46",
-    trainee: "Maple-Compass-88",
-    trainer: "Beacon-North-2071",
-    shr:     "Falcon-Onyx-317"
-  };
-  var unlocked = {};   // session memory only (no storage used)
-
-  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.nav-link'));
-  var pages = Array.prototype.slice.call(document.querySelectorAll('.page'));
-  var sidebar = document.getElementById('sidebar');
-  var scrim = document.getElementById('scrim');
-
-  function closeMenu(){ sidebar.classList.remove('open'); scrim.classList.remove('show'); }
-
-  function showPage(target){
-    pages.forEach(function(p){ p.classList.toggle('active', p.id === 'page-'+target); });
-    navLinks.forEach(function(l){ l.classList.toggle('active', l.dataset.target === target); });
-    window.scrollTo({top:0, behavior:'auto'});
-    closeMenu();
-  }
-
-  navLinks.forEach(function(link){
-    link.addEventListener('click', function(){ showPage(link.dataset.target); });
-  });
-
-  // ----- Unlock forms -----
-  document.querySelectorAll('form[data-unlock]').forEach(function(form){
-    var key = form.dataset.unlock;
-    form.addEventListener('submit', function(e){
-      e.preventDefault();
-      var input = form.querySelector('input');
-      var errEl = document.querySelector('[data-err="'+key+'"]');
-      var val = (input.value || '').trim();
-      if(val.toUpperCase() === CODES[key].toUpperCase()){
-        unlocked[key] = true;
-        document.getElementById('lock-'+key).style.display = 'none';
-        document.getElementById('content-'+key).hidden = false;
-        // mark nav as open
-        var nl = document.querySelector('.nav-link[data-lock="'+key+'"]');
-        if(nl){ nl.classList.add('is-open'); nl.querySelector('.lk').textContent = '🔓'; }
-        errEl.textContent = '';
-      } else {
-        errEl.textContent = "That code didn't work. Check with your Head of Staff.";
-        input.value = '';
-        input.focus();
-      }
-    });
-  });
-
-  // ----- Mobile menu -----
-  var menuBtn = document.getElementById('menuBtn');
-  if(menuBtn){
-    menuBtn.addEventListener('click', function(){
-      sidebar.classList.toggle('open');
-      scrim.classList.toggle('show', sidebar.classList.contains('open'));
-    });
-  }
-  scrim.addEventListener('click', closeMenu);
-})();
-</script>
-</body>
-</html>
+      </footer>
+    </div>
+  );
+}
